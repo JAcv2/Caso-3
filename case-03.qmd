@@ -2,7 +2,7 @@
 title: "Analítica Avanzada de Datos"
 subtitle: "Caso #3"
 author: 
-  - name: Jorge I. Vélez, PhD
+  - name: Jorge I. Vélez, PhD - Julian Acevedo
     orcid: 0000-0002-3146-7899
     url: https://jorgeivanvelez.netlify.app/
     email: jvelezv@uninorte.edu.co
@@ -259,50 +259,29 @@ Ordene los resultados obtenidos de acuerdo con el valor $p$ y extraiga los 10 ln
 
 ```{r}
 # dataset de resultados
-res <- data.frame(lncRNA=character(), p_valor=numeric(), stringsAsFactors=FALSE)
+res <- data.frame(lncRNA=character(), p_valor=numeric(),coef=numeric(), stringsAsFactors=FALSE)
 # prueba t para cada nivel
 for (col in colnames(d)[3:ncol(d)]){
   test <- t.test(grupo_ea[[col]], grupo_control[[col]], alternative="two.sided")
-  res <- rbind(res, data.frame(lncRNA=col, p_valor=test$p.value))
+  coe <- mean(grupo_ea[[col]]) - mean(grupo_control[[col]])
+  res <- rbind(res, data.frame(lncRNA=col, p_valor=test$p.value, coef=coe))
 }
-```
-
-```{r}
-
-# Separar las columnas de diagnóstico y datos de expresión
-diagnostico <- d$dx
-expresion <- d[, -c(1, 2)]
-
-# Inicializar un dataframe para almacenar los resultados
-resultados <- data.frame(lncRNA=colnames(expresion), p_valor=NA, coeficiente=NA, stringsAsFactors=FALSE)
-
-# Realizar la prueba t de Student para cada lncRNA
-for (col in colnames(expresion)) {
-  test <- t.test(expresion[[col]][diagnostico == 1], expresion[[col]][diagnostico == 0], alternative="two.sided")
-  coef <- mean(expresion[[col]][diagnostico == 1]) - mean(expresion[[col]][diagnostico == 0])
-  resultados$p_valor[resultados$lncRNA == col] <- test$p.value
-  resultados$coeficiente[resultados$lncRNA == col] <- coef
-}
-
 # Ajustar los valores p utilizando el método FDR
-resultados$p_valor_adj <- p.adjust(resultados$p_valor, method = "fdr")
+res$p_valor_adj <- p.adjust(res$p_valor, method = "fdr")
 ```
 
-
 ```{r}
-head(resultados)
+head(res)
 ```
 
-
-
 ```{r}
-res_ord <- resultados[order(res$p_valor),]
+res_ord <- res[order(res$p_valor),]
 head(res_ord,10)
 ```
 
 ```{r}
-riesgo <- sum(head(res_ord,10)$coeficiente > 0)
-proteccion <- sum(head(res_ord,10)$coeficiente < 0)
+riesgo <- sum(head(res_ord,10)$coef > 0)
+proteccion <- sum(head(res_ord,10)$coef < 0)
 
 # Mostrar los resultados
 cat("Número de lncRNAs que confieren riesgo:", riesgo, "\n")
