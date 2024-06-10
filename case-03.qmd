@@ -1,0 +1,366 @@
+---
+title: "Analítica Avanzada de Datos"
+subtitle: "Caso #3"
+author: 
+  - name: Jorge I. Vélez, PhD
+    orcid: 0000-0002-3146-7899
+    url: https://jorgeivanvelez.netlify.app/
+    email: jvelezv@uninorte.edu.co
+    affiliations:
+      - name: Universidad del Norte, Barranquilla
+fontsize: 14pt
+date: "6/7/24"
+self-contained: true
+lang: es
+editor_options: 
+  chunk_output_type: inline
+toc: true
+toc-title: ""
+toc-depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(warn = -1)
+```
+
+## Introducción
+
+Los ARN no codificantes largos (lncRNAs en inglés) comprenden un vasto repertorio de ARN que desempeñan una amplia variedad de funciones cruciales en la fisiología de los tejidos de manera específica para cada célula. A pesar de estar implicados en miles de mecanismos reguladores, todavía no se ha asignado ninguna función a muchos lncRNAs. 
+
+```{r echo=FALSE, out.width="85%", fig.cap="Clasificación de las funciones de los lncRNAs. Imagen tomada de [aquí](https://onlinelibrary.wiley.com/doi/10.1111/jcmm.13238).", fig.align='center', message=FALSE}
+require(knitr)
+knitr::include_graphics("https://www.dropbox.com/scl/fi/vgv4qeferubur5mavyy5i/lncRNAsexplained.png?rlkey=a9ele76y3v5a2ba2jamwc62o3&dl=1")
+```
+
+
+Cada vez hay más pruebas de que los lncRNAs se expresan de forma aberrante en la progresión de la [Enfermedad de Alzheimer](https://www.mayoclinic.org/es/diseases-conditions/alzheimers-disease/symptoms-causes/syc-20350447) (EA). En nuestro grupo, hemos analizado la expresión de cientos de lncRNAs en 15 individuos diagnosticados con EA, y 15 voluntarios sin la enfermedad en el marco del proyecto de investigación "_Nuevos ARN no codificantes exo- somales y su papel en la patogénesis de la Enfermedad de Alzheimer_", código 121584468097 (844/2019), contract 416-2020, otorgado al _Grupo en Genética y Medicina Molecular_ (Departamento de Medicina), y al  _Grupo de Productividad y Competitividad_ (Departamento de Ingeniería Industrial) de la Universidad del Norte, Barranquilla, Colombia.
+
+
+Una muestra de los datos puede obtenerse haciendo:
+
+```{r message=FALSE, cache=TRUE}
+## disponibilidad del paquete data.table
+if(!require(data.table)) install.packages('data.table')
+require(data.table)
+
+## lectura de datos con fread() de data.table
+url <- 'https://www.dropbox.com/scl/fi/osljigmhxwcriewhpxq1s/AD_lncRNAs.txt?rlkey=j8cfuqsx51uz9hp3a7qvbzhst&dl=1'
+d <- fread(url, header = TRUE)
+d <- as.data.frame(d)
+```
+Las variables relevantes son
+
+* `id`: identificador del participante.
+* `dx`: diagnóstico del participante (`0`: no EA; `1`: EA)
+* `x1`, `x2`,..., `x29809`: niveles de expresión del lncRNA $j$, con $j=1,2,\ldots,29809$.
+
+El objeto `d` tiene `r NROW(d)` filas y `r ncol(d)` columnas.
+
+::: {.callout-important}
+A partir de los datos, el objetivo es **identificar los lncRNAs** cuya expresión _incrementa_ o _reduce_ la probabilidad de diagnóstico de EA. 
+
+**Fecha de entrega:** Junio 11, 2024.
+:::
+
+
+Como la variable respuesta es binaria, podemos utilizar las funciones que ya hemos empleado con anterioridad en Regresión Logística (RL) para medir el desempeño del modelo.
+
+```{r, message=FALSE}
+## load functions
+source('https://www.dropbox.com/s/xclvdugfbrf5ryn/logistic-functions.R?dl=1')
+```
+
+## Preguntas
+
+### P1
+
+Use una prueba $t$ de Student de 2 colas para identificar los lncRNAs diferencialmente expresados en personas con EA. Extraiga el valor $p$ y compárelo con el nivel de significancia $\alpha = 0.05$. Cuántos de estos son estadísticamente significativos?  Use la función `p.adjust()` para ajustar los valores $p$ utilizando el método  [FDR](https://www.split.io/glossary/false-discovery-rate/). Compare.
+
+**Respuesta.** 
+
+#### Segmentación del dataset
+Se toma un set de datos para los individuos diagnosticadas con la enfermedad y se toma otra set de datos con los individuos que no estan diagnosticadas con la enfermedad.
+
+```{r}
+#Segmentar grupos EA y grupo control
+grupo_ea <- subset(d, dx == 1)
+grupo_control <- subset(d, dx == 0)
+```
+
+#### Prueba T Studen de dos colas
+
+Determinaremos si hay una diferencia significativa entre las medias de dos grupos independientes.
+
+Hipotesis:
+
+$H_{0}:\mu_{EA}=\mu_{Control}$
+
+$H_{1}:\mu_{EA}\neq\mu_{Control}$
+
+```{r}
+# prueba t de dos colas
+t.test(grupo_ea[3],grupo_control[3],alternative = "two.sided")
+```
+
+Tomando como ejemplo la columna $x_{1}$ podemos identificar que el p-valor es igual a 0.7273, este valor es mayor al nivel de significancia del 5% ($\alpha=0.05$, por lo tanto no hay evidencia para rechazar $H_{0}$ y se puede concliur que no hay una diferencia significativa en las medias para la variable $x_{1}$ entre los individuos diagnosticados con la enfermedad (EA) y los individuos diagnoticados sin la enfermedad (Control).
+
+```{r}
+# Grafico boxplot
+boxplot(d$x1~d$dx, horizontal = T, xlab = 'x1',ylab = 'dx',main='Boxplot variable x1 por diagnostico')
+```
+En la figura anterior se logra identificar graficamente las diferencias entre los individuos diagnosticados con la enfermedad (EA) y los individuos diagnoticados sin la enfermedad (Control).
+
+A continuacion se realizara la prueba t de student para cada uno de los 29.809 niveles de expresion del IncRNA
+
+```{r}
+# Resultados
+res <- data.frame(lncRNA=character(), p_valor=numeric(), stringsAsFactors=FALSE)
+# prueba t para cada nivel
+for (col in colnames(d)[3:ncol(d)]){
+  test <- t.test(grupo_ea[[col]], grupo_control[[col]], alternative="two.sided")
+  res <- rbind(res, data.frame(lncRNA=col, p_valor=test$p.value))
+}
+```
+
+```{r}
+head(res)
+```
+
+#### Ajuste P-Valor
+
+Cuando se realizan múltiples pruebas estadísticas, como en el análisis de expresión génica donde se prueban cientos o miles de genes al mismo tiempo, la probabilidad de obtener falsos positivos aumenta.
+
+##### Método FDR (False Discovery Rate)
+
+El método fdr se refiere a la corrección de Benjamini-Hochberg (Benjamini & Hochberg, 1995), que es una técnica ampliamente utilizada para controlar la FDR. Este método ajusta los p-valores de tal manera que controla la proporción esperada de falsos descubrimientos entre los resultados significativos.
+
+```{r}
+# ajustar con el método FDR
+res$p_valor_adj <- p.adjust(res$p_valor, method = "fdr")
+
+```
+
+```{r}
+head(res)
+```
+#### Comparación de p_valor aplicando el metodo FDR 
+
+```{r}
+#conteo de significativos
+sig_sin_ajuste <- sum(res$p_valor < 0.05)
+sig_con_ajuste <- sum(res$p_valor_adj < 0.05)
+cat("lncRNAs significativos sin ajuste:", sig_sin_ajuste, "\n")
+cat("lncRNAs significativos con ajuste FDR:", sig_con_ajuste, "\n")
+```
+Después del ajuste FDR, los p-valores no eran suficientemente bajos para ser considerados significativos bajo un nivel de significancia del 5% ($\alpha=0.05$). Esto indica que las diferencias observadas en las pruebas originales no son estadísticamente robustas cuando se considera el problema de múltiples comparaciones.
+
+### P2
+
+Construya una función que, a partir del _número_ del lncRNA, estime el modelo de RL, extraiga el coeficiente estimado, el estadístico $t$ y el valor $p$.  Por ejemplo, para el lncRNA $j$, aplicar `my_magical_function(j)` debe producir $\hat{\beta}_j$, $t_j$ y $p_j$.
+
+**Respuesta.** 
+
+#### Función
+
+
+```{r}
+my_magical_function <- function(j) {
+  # Concatenar x con el numero de j
+  col_name <- paste0("x", j)
+  # Concatenar dx ~ con xj
+  formula <- as.formula(paste("dx ~", col_name))
+  # Modelo
+  modelo <- glm(formula, data = d, family = binomial)
+  # coeficientes
+  coef <- summary(modelo)$coefficients
+  # Valores estimados
+  beta_j <- coef[2, 1] # coeficiente estimado
+  t_j <- coef[2, 3]    # estadistico t
+  p_j <- coef[2, 4]    # p valor
+  
+  return(cat("Resultados:", "\n",
+             "1. Coeficiente estimado:", beta_j, "\n",
+             "2. Estadístico t:", t_j, "\n",
+             "3. Valor p:", p_j, "\n"))
+}
+```
+
+#### Ejemplo de aplicación de la formula:
+
+```{r}
+my_magical_function(1)
+```
+
+
+### P3
+
+Realice el mismo análisis que en `P1`, pero ahora estandarice los niveles de expresión.  Apóyese en la función `scale()`.  Considera usted que la estandarización es necesaria?  Por qué si?  Por qué no?  Compare los resultados cuando usa estandarización y cuando no.
+
+#### Prueba T Studen de dos colas
+
+```{r}
+#Escalar grupos EA y grupo control
+col_ea_sca <- scale(grupo_ea[,3:ncol(d)])
+col_control_sca <- scale(grupo_control[,3:ncol(d)])
+grupo_ea_sca <- cbind(grupo_ea[,1:2],col_ea_sca)
+grupo_control_sca <- cbind(grupo_control[,1:2],col_control_sca)
+# crear dataset de resultados
+res <- data.frame(lncRNA=character(), p_valor=numeric(), stringsAsFactors=FALSE)
+# prueba t para cada nivel
+for (col in colnames(d)[3:ncol(d)]){
+  test <- t.test(grupo_ea_sca[[col]], grupo_control_sca[[col]], alternative="two.sided")
+  res <- rbind(res, data.frame(lncRNA=col, p_valor=test$p.value))
+}
+```
+
+```{r}
+head(res)
+```
+
+```{r}
+# Ajustar los valores p utilizando el método FDR
+res$p_valor_adj <- p.adjust(res$p_valor, method = "fdr")
+```
+
+```{r}
+head(res)
+```
+
+#### Comparación de p_valor aplicando el metodo FDR 
+
+```{r}
+# Cuantos son estadisticamente significativos
+sig_sin_ajuste <- sum(res$p_valor < 0.05)
+sig_con_ajuste <- sum(res$p_valor_adj < 0.05)
+
+# Mostrar los resultados
+cat("lncRNAs significativos sin ajuste:", sig_sin_ajuste, "\n")
+cat("lncRNAs significativos con ajuste FDR:", sig_con_ajuste, "\n")
+```
+
+La falta de p-valores significativos después de escalar puede deberse a que las diferencias observadas en los datos no escalados estaban infladas por variaciones en la escala y varianza de los datos originales. La estandarización hace que las comparaciones sean más justas y consistentes, lo que puede revelar que las diferencias iniciales no eran tan significativas como parecían.
+
+### P4
+
+En `P1` se usó una prueba $t$ de Student y en `P2` un modelo de RL. Explique por qué hay diferencias en el número de lncRNAs que resultan ser significativos al emplear estos métodos.
+
+Las diferencias en el número de lncRNAs significativos entre la prueba t y el modelo de regresión logística se deben a las diferencias en cómo cada método maneja los datos, sus supuestos subyacentes, y el tipo de relación que evalúan. La regresión logística tiende a ser más robusta a diferentes distribuciones y puede considerar múltiples variables al mismo tiempo, lo que puede llevar a diferencias significativas en los resultados.
+
+En la prueb t student el proposito es comparar las medias de dos grupos independientes. Los supuestos asumen que cada grupo tiene una distribución normal y asume homogeneidad en las varianzas de los grupos.
+
+El modelo de regresión logística evalua la relación entre una variable independiente (IncRNA) y la probabilidad e pertenecer a una de las categorias, en este caso al diagnostico(dx). Los supuestos no requieren que las variables independientes se distribuyan normalmente, no requiere homogeneidad de varianza y puede manejar multiples vables independientes.
+
+### P5
+
+Ordene los resultados obtenidos de acuerdo con el valor $p$ y extraiga los 10 lncRNAs más significativos de acuerdo con el valor $p$. Cuántos de ellos confieren _riesgo_ y cuántos _protección_ contra EA? Concluya.
+  
+**Respuesta.** 
+
+```{r}
+# dataset de resultados
+res <- data.frame(lncRNA=character(), p_valor=numeric(), stringsAsFactors=FALSE)
+# prueba t para cada nivel
+for (col in colnames(d)[3:ncol(d)]){
+  test <- t.test(grupo_ea[[col]], grupo_control[[col]], alternative="two.sided")
+  res <- rbind(res, data.frame(lncRNA=col, p_valor=test$p.value))
+}
+```
+
+```{r}
+
+# Separar las columnas de diagnóstico y datos de expresión
+diagnostico <- d$dx
+expresion <- d[, -c(1, 2)]
+
+# Inicializar un dataframe para almacenar los resultados
+resultados <- data.frame(lncRNA=colnames(expresion), p_valor=NA, coeficiente=NA, stringsAsFactors=FALSE)
+
+# Realizar la prueba t de Student para cada lncRNA
+for (col in colnames(expresion)) {
+  test <- t.test(expresion[[col]][diagnostico == 1], expresion[[col]][diagnostico == 0], alternative="two.sided")
+  coef <- mean(expresion[[col]][diagnostico == 1]) - mean(expresion[[col]][diagnostico == 0])
+  resultados$p_valor[resultados$lncRNA == col] <- test$p.value
+  resultados$coeficiente[resultados$lncRNA == col] <- coef
+}
+
+# Ajustar los valores p utilizando el método FDR
+resultados$p_valor_adj <- p.adjust(resultados$p_valor, method = "fdr")
+```
+
+
+```{r}
+head(resultados)
+```
+
+
+
+```{r}
+res_ord <- resultados[order(res$p_valor),]
+head(res_ord,10)
+```
+
+```{r}
+riesgo <- sum(head(res_ord,10)$coeficiente > 0)
+proteccion <- sum(head(res_ord,10)$coeficiente < 0)
+
+# Mostrar los resultados
+cat("Número de lncRNAs que confieren riesgo:", riesgo, "\n")
+cat("Número de lncRNAs que confieren protección:", proteccion, "\n")
+```
+De los 10 lncRNAs más significativos identificados en el análisis, la mayoría (9) están asociados con un mayor riesgo de desarrollar EA. Esto significa que estos 9 lncRNAs tienen una mayor expresión en las personas con EA comparado con las personas sin EA.
+
+Solo 1 lncRNA se asoció con protección contra EA, indicando que su mayor expresión podría estar relacionada con una menor probabilidad de tener EA.
+
+### P6
+
+Construya un modelo de RL que incluya los lncRNAs seleccionados en `P5`.  Evalúe la [idoneidad](https://jivelez.github.io/book-adii/glm.html#regresi%C3%B3n-log%C3%ADstica). Concluya.
+
+**Respuesta.** 
+
+```{r}
+## aquí va el código
+```
+
+
+### P7
+
+Utilizando el criterio $S_e \approx S_p$, se determinó que el _cutoff_  óptimo como $\theta_0 = 0.3$  con base en el modelo modelo de RL ajustastado en `P5`. Está usted de acuerdo? Concluya.  
+
+**Respuesta.** 
+
+```{r}
+## aquí va el código
+```
+
+
+### P8
+
+Construya una función que, a partir de los niveles de expresión de lncRNAs en una persona, determine el diagnóstico de EA. Tenga en cuenta en valor de  $\theta_0$ derivado en `P7`. Si $\mathbf{x}_0$ representa el vector de dichos niveles de expresión, entonces:
+
+```{r eval=FALSE}
+## ejemplo predicción
+alzheimer(x0)
+```
+
+debería reportar `1` si la persona es diagnosticada con EA, y `0` en otro caso.
+
+
+### P9
+
+Repita `P2` pero use un modelo de [Regresión Lineal Simple](https://jivelez.github.io/book-adii/rls.html)(RLS) en lugar de un modelo de RL. Compare los resultados y concluya.  Con base en los resultados obtenidos, cree usted que tiene sentido (o hace alguna diferencia) usar RLS en lugar de RL?. Justifique.
+
+
+### P10
+
+Suponga que se ajustan los modelos
+
+$M_1:$ `glm(dx ~ x1, family = 'binomial', data = d)` 
+</br>
+$M_2:$ `glm(dx ~ x1 + x2, family = 'binomial', data = d)`
+
+tal que $M_1 \subseteq M_2$.
+
+Después del proceso de estimación, se obtuvieron los coeficientes $(\hat{\beta}_{0,M_1}, \hat{\beta}_{1,M_1})$ y $(\hat{\beta}_{0,M_2}, \hat{\beta}_{1,M_2}, \hat{\beta}_{2,M_2})$ con base en una muestra de tamaño $n$ almacenada en el objeto `d`.
+
+Interprete $\hat{\beta}_{1,M_1}$ y $\hat{\beta}_{1,M_2}$.  Qué representa $\hat{\beta}_{2,M_2}$?.
