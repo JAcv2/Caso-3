@@ -3634,23 +3634,399 @@ mean of x mean of y
 <p>Construya un modelo de RL que incluya los lncRNAs seleccionados en <code>P5</code>. Evalúe la <a href="https://jivelez.github.io/book-adii/glm.html#regresi%C3%B3n-log%C3%ADstica">idoneidad</a>. Concluya.</p>
 <p><strong>Respuesta.</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="do">## aquí va el código</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>lncRNAs_sig <span class="ot">&lt;-</span> <span class="fu">head</span>(res_ord,<span class="dv">10</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>lncRNAs_sel <span class="ot">&lt;-</span> lncRNAs_sig<span class="sc">$</span>lncRNA</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>df_sig <span class="ot">&lt;-</span> d[, <span class="fu">c</span>(<span class="st">&quot;dx&quot;</span>, lncRNAs_sel)]</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;dx ~&quot;</span>, <span class="fu">paste</span>(lncRNAs_sel, <span class="at">collapse =</span> <span class="st">&quot; + &quot;</span>)))</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>modelo <span class="ot">&lt;-</span> <span class="fu">glm</span>(formula, <span class="at">data =</span> df_sig, <span class="at">family =</span> binomial)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = formula, family = binomial, data = df_sig)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)    -303.64 6898485.73       0        1
+x4634           -65.57  560194.65       0        1
+x24198           10.85  317035.45       0        1
+x3994            35.74 1096734.64       0        1
+x12278          -63.55  539814.21       0        1
+x2114            50.71  440974.98       0        1
+x9628           -29.01  558997.27       0        1
+x27459           40.18  213890.21       0        1
+x6768            12.58  711287.32       0        1
+x2326            22.49  262964.50       0        1
+x1457            36.61  279771.38       0        1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4.1589e+01  on 29  degrees of freedom
+Residual deviance: 4.8856e-10  on 19  degrees of freedom
+AIC: 22
+
+Number of Fisher Scoring iterations: 25</code></pre>
 </div>
+</div>
+<p>Las probabilidades predichas fueron exactamente 0 o 1. Esto puede ocurrir por Multicolinealidad(cuando dos o más variables predictoras están altamente correlacionadas).</p>
+<p>Para identificar si las variables predictoras del modelo presentan multicolinealidad, se aplicara el factor de inflacion de varianza(VIF por sus siglas en ingles.</p>
+<p>Interpretación del VIF - VIF = 1: No hay correlación entre la variable predictora <span class="math inline">\(x_{j}\)</span> y las demás variables predictoras.</p>
+<ul>
+<li><p>1 &lt; VIF &lt; 5: Existe una correlación moderada, pero generalmente se considera aceptable.</p></li>
+<li><p>VIF &gt; 5: Alta correlación y posible problema de multicolinealidad.</p></li>
+<li><p>VIF &gt; 10: Problema severo de multicolinealidad, y se recomienda tomar acciones para mitigarla, como eliminar la variable problemática o combinar variables correlacionadas.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: &#39;car&#39;</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from &#39;package:epicalc&#39;:
+
+    recode</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular el factor de inflación de la varianza (VIF)</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     x4634     x24198      x3994     x12278      x2114      x9628     x27459 
+ 53.956071   6.646533 129.334862   5.619261  24.726176 115.368009   8.179069 
+     x6768      x2326      x1457 
+ 40.866112   5.531747  18.682180 </code></pre>
+</div>
+</div>
+<p>Como se identifica las variables predictoras presentan alta colinealidad, por lo tanto se debe a retirar del modelo la variable con mayor valor VIF, en este “x9628” presenta un valor de <span class="math inline">\(115.368009\)</span>.</p>
+<p>Se retira la variable predictora del modelo y se vuelve a generar el modelo:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>lncRNAs_sel<span class="ot">&lt;-</span><span class="fu">setdiff</span>(lncRNAs_sel,<span class="st">&quot;x9628&quot;</span>)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>df_sig<span class="ot">&lt;-</span><span class="fu">subset</span>(df_sig, <span class="at">select =</span> <span class="sc">-</span>x9628)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;dx ~&quot;</span>, <span class="fu">paste</span>(lncRNAs_sel, <span class="at">collapse =</span> <span class="st">&quot; + &quot;</span>)))</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>modelo <span class="ot">&lt;-</span> <span class="fu">glm</span>(formula, <span class="at">data =</span> df_sig, <span class="at">family =</span> binomial)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = formula, family = binomial, data = df_sig)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)  1.165e+02  3.012e+06       0        1
+x4634       -2.297e+01  4.793e+05       0        1
+x24198       3.727e+00  3.637e+05       0        1
+x3994       -3.346e+01  6.706e+05       0        1
+x12278      -1.167e+02  6.243e+05       0        1
+x2114        3.955e+01  2.009e+05       0        1
+x27459       3.597e+01  2.334e+05       0        1
+x6768       -1.280e+01  2.412e+05       0        1
+x2326        4.610e+01  4.191e+05       0        1
+x1457        1.534e+01  1.382e+05       0        1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4.1589e+01  on 29  degrees of freedom
+Residual deviance: 6.1285e-10  on 20  degrees of freedom
+AIC: 20
+
+Number of Fisher Scoring iterations: 25</code></pre>
+</div>
+</div>
+<p>Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.</p>
+<p>Se aplica nuvamente VIF</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular el factor de inflación de la varianza (VIF)</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    x4634    x24198     x3994    x12278     x2114    x27459     x6768     x2326 
+28.008471  6.876062 33.244435  6.322817  5.630909  9.841040  4.130822 16.022873 
+    x1457 
+ 6.781741 </code></pre>
+</div>
+</div>
+<p>Se retira la variable predictora “x3994” del modelo y se vuelve a generar el modelo:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>lncRNAs_sel<span class="ot">&lt;-</span><span class="fu">setdiff</span>(lncRNAs_sel,<span class="st">&quot;x3994&quot;</span>)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>df_sig<span class="ot">&lt;-</span><span class="fu">subset</span>(df_sig, <span class="at">select =</span> <span class="sc">-</span>x3994)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;dx ~&quot;</span>, <span class="fu">paste</span>(lncRNAs_sel, <span class="at">collapse =</span> <span class="st">&quot; + &quot;</span>)))</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>modelo <span class="ot">&lt;-</span> <span class="fu">glm</span>(formula, <span class="at">data =</span> df_sig, <span class="at">family =</span> binomial)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = formula, family = binomial, data = df_sig)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)     -31.42 1558741.87       0        1
+x4634           -47.28  207826.24       0        1
+x24198           11.90  191596.96       0        1
+x12278         -110.06  356059.40       0        1
+x2114            37.66  273916.92       0        1
+x27459           33.81  122762.84       0        1
+x6768           -16.01  390113.37       0        1
+x2326            48.03  216126.61       0        1
+x1457            19.50   99711.67       0        1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4.1589e+01  on 29  degrees of freedom
+Residual deviance: 6.5960e-10  on 21  degrees of freedom
+AIC: 18
+
+Number of Fisher Scoring iterations: 25</code></pre>
+</div>
+</div>
+<p>Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.</p>
+<p>Se aplica nuvamente VIF</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular el factor de inflación de la varianza (VIF)</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    x4634    x24198    x12278     x2114    x27459     x6768     x2326     x1457 
+ 6.059437  2.274927  2.950574 10.801283  2.903580 13.661193  5.649371  4.287341 </code></pre>
+</div>
+</div>
+<p>Se retira la variable predictora “x6768” del modelo y se vuelve a generar el modelo:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>lncRNAs_sel<span class="ot">&lt;-</span><span class="fu">setdiff</span>(lncRNAs_sel,<span class="st">&quot;x6768&quot;</span>)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>df_sig<span class="ot">&lt;-</span><span class="fu">subset</span>(df_sig, <span class="at">select =</span> <span class="sc">-</span>x6768)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;dx ~&quot;</span>, <span class="fu">paste</span>(lncRNAs_sel, <span class="at">collapse =</span> <span class="st">&quot; + &quot;</span>)))</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>modelo <span class="ot">&lt;-</span> <span class="fu">glm</span>(formula, <span class="at">data =</span> df_sig, <span class="at">family =</span> binomial)</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = formula, family = binomial, data = df_sig)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)     -45.16 1368018.63       0        1
+x4634           -52.28  283441.41       0        1
+x24198            7.64  210604.50       0        1
+x12278         -112.43  342073.52       0        1
+x2114            31.91  118523.68       0        1
+x27459           38.63  124941.93       0        1
+x2326            44.74  227414.67       0        1
+x1457            22.87  110331.32       0        1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4.1589e+01  on 29  degrees of freedom
+Residual deviance: 7.0266e-10  on 22  degrees of freedom
+AIC: 16
+
+Number of Fisher Scoring iterations: 25</code></pre>
+</div>
+</div>
+<p>e identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.</p>
+<p>Se aplica nuvamente VIF</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular el factor de inflación de la varianza (VIF)</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   x4634   x24198   x12278    x2114   x27459    x2326    x1457 
+8.855582 2.703135 2.251386 2.079072 2.540604 5.899711 5.141222 </code></pre>
+</div>
+</div>
+<p>Se retira la variable predictora “x6768” del modelo y se vuelve a generar el modelo:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>lncRNAs_sel<span class="ot">&lt;-</span><span class="fu">setdiff</span>(lncRNAs_sel,<span class="st">&quot;x2326&quot;</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>df_sig<span class="ot">&lt;-</span><span class="fu">subset</span>(df_sig, <span class="at">select =</span> <span class="sc">-</span>x2326)</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;dx ~&quot;</span>, <span class="fu">paste</span>(lncRNAs_sel, <span class="at">collapse =</span> <span class="st">&quot; + &quot;</span>)))</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>modelo <span class="ot">&lt;-</span> <span class="fu">glm</span>(formula, <span class="at">data =</span> df_sig, <span class="at">family =</span> binomial)</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = formula, family = binomial, data = df_sig)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)    -267.64 1504935.52       0        1
+x4634           -20.51  162573.96       0        1
+x24198           55.73  317616.35       0        1
+x12278          -71.90  420215.08       0        1
+x2114            31.40  111800.11       0        1
+x27459           43.46  111687.99       0        1
+x1457            14.61   60773.00       0        1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4.1589e+01  on 29  degrees of freedom
+Residual deviance: 9.4135e-10  on 23  degrees of freedom
+AIC: 14
+
+Number of Fisher Scoring iterations: 25</code></pre>
+</div>
+</div>
+<p>Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.</p>
+<p>Se aplica nuvamente VIF</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular el factor de inflación de la varianza (VIF)</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   x4634   x24198   x12278    x2114   x27459    x1457 
+2.891854 5.201024 5.107900 2.678426 3.133559 2.346567 </code></pre>
+</div>
+</div>
+<p>Se retira la variable predictora “x24198” del modelo y se vuelve a generar el modelo:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>lncRNAs_sel<span class="ot">&lt;-</span><span class="fu">setdiff</span>(lncRNAs_sel,<span class="st">&quot;x24198&quot;</span>)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>df_sig<span class="ot">&lt;-</span><span class="fu">subset</span>(df_sig, <span class="at">select =</span> <span class="sc">-</span>x24198)</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;dx ~&quot;</span>, <span class="fu">paste</span>(lncRNAs_sel, <span class="at">collapse =</span> <span class="st">&quot; + &quot;</span>)))</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>modelo <span class="ot">&lt;-</span> <span class="fu">glm</span>(formula, <span class="at">data =</span> df_sig, <span class="at">family =</span> binomial)</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = formula, family = binomial, data = df_sig)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)  2.529e+02  1.209e+06   0.000    1.000
+x4634       -3.268e+01  1.254e+05   0.000    1.000
+x12278      -2.544e+02  3.527e+05  -0.001    0.999
+x2114        6.262e+01  9.467e+04   0.001    0.999
+x27459       8.336e+01  1.223e+05   0.001    0.999
+x1457        7.768e+00  8.130e+04   0.000    1.000
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4.1589e+01  on 29  degrees of freedom
+Residual deviance: 1.7589e-09  on 24  degrees of freedom
+AIC: 12
+
+Number of Fisher Scoring iterations: 25</code></pre>
+</div>
+</div>
+<p>Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.</p>
+<p>Se aplica nuvamente VIF</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular el factor de inflación de la varianza (VIF)</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   x4634   x12278    x2114   x27459    x1457 
+3.055535 3.959047 3.606194 4.002182 5.812627 </code></pre>
+</div>
+</div>
+<p>Se retira la variable predictora “x1457” del modelo y se vuelve a generar el modelo:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>lncRNAs_sel<span class="ot">&lt;-</span><span class="fu">setdiff</span>(lncRNAs_sel,<span class="st">&quot;x1457&quot;</span>)</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>df_sig<span class="ot">&lt;-</span><span class="fu">subset</span>(df_sig, <span class="at">select =</span> <span class="sc">-</span>x1457)</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;dx ~&quot;</span>, <span class="fu">paste</span>(lncRNAs_sel, <span class="at">collapse =</span> <span class="st">&quot; + &quot;</span>)))</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>modelo <span class="ot">&lt;-</span> <span class="fu">glm</span>(formula, <span class="at">data =</span> df_sig, <span class="at">family =</span> binomial)</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = formula, family = binomial, data = df_sig)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)     456.34 1348528.38   0.000    1.000
+x4634           -27.97   78759.77   0.000    1.000
+x12278         -328.64  364882.13  -0.001    0.999
+x2114            72.86   72902.53   0.001    0.999
+x27459           75.24  200540.85   0.000    1.000
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4.1589e+01  on 29  degrees of freedom
+Residual deviance: 2.1607e-09  on 25  degrees of freedom
+AIC: 10
+
+Number of Fisher Scoring iterations: 25</code></pre>
+</div>
+</div>
+<p>Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.</p>
+<p>Se aplica nuvamente VIF</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular el factor de inflación de la varianza (VIF)</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   x4634   x12278    x2114   x27459 
+2.150279 3.332190 2.717265 2.685433 </code></pre>
+</div>
+</div>
+<p>Una vez identificamos que el modelo no presenta multicolinealidad en las variables y aun las probabilidades predichas son exactamente uno, se procede a identificar que la conbinacion de variables predicen correctamente el resultado:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar la tabla de contingencia para la separación perfecta</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(df_sig<span class="sc">$</span>dx, <span class="fu">predict</span>(modelo, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>) <span class="sc">&gt;</span> <span class="fl">0.5</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   
+    FALSE TRUE
+  0    15    0
+  1     0   15</code></pre>
+</div>
+</div>
+<p>En la tabla de contingencia se identifica que existe separacion perfecta en el set de datos, esto significa que pueden existir variables que pueden predecir el resultado de la variable predicha de manera perfecta.</p>
+<p>Con el objetivo de identificar que variables preductoras estan causando una separacion perfecta, se ajustan modelos de regresión logística simple para cada predictor:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear una función para verificar la separación perfecta para cada predictor</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>verificar_separacion <span class="ot">&lt;-</span> <span class="cf">function</span>(data, predictor) {</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  modelo <span class="ot">&lt;-</span> <span class="fu">glm</span>(dx <span class="sc">~</span> ., <span class="at">data =</span> data[, <span class="fu">c</span>(<span class="st">&quot;dx&quot;</span>, predictor)], <span class="at">family =</span> binomial)</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  predicciones <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>  tabla <span class="ot">&lt;-</span> <span class="fu">table</span>(data<span class="sc">$</span>dx, predicciones <span class="sc">&gt;</span> <span class="fl">0.5</span>)</span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(tabla)</span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar la separación perfecta para cada predictor</span></span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (predictor <span class="cf">in</span> <span class="fu">colnames</span>(df_sig)[<span class="sc">-</span><span class="dv">1</span>]) {</span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Variable:&quot;</span>, predictor, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">verificar_separacion</span>(df_sig, predictor))</span>
+<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Variable: x4634 
+   
+    FALSE TRUE
+  0    13    2
+  1     2   13
+
+Variable: x12278 
+   
+    FALSE TRUE
+  0    11    4
+  1     3   12
+
+Variable: x2114 
+   
+    FALSE TRUE
+  0    12    3
+  1     4   11
+
+Variable: x27459 
+   
+    FALSE TRUE
+  0    11    4
+  1     3   12</code></pre>
+</div>
+</div>
+<p>Los resultados indican que ninguna de las variables individuales causa una separación perfecta, pero la combinación de varias de ellas parece llevar a una separación perfecta cuando se usan todas juntas en el modelo.</p>
 </section>
 <section id="p7" class="level3">
 <h3 class="anchored" data-anchor-id="p7">P7</h3>
 <p>Utilizando el criterio <span class="math inline">\(S_e \approx S_p\)</span>, se determinó que el <em>cutoff</em> óptimo como <span class="math inline">\(\theta_0 = 0.3\)</span> con base en el modelo modelo de RL ajustastado en <code>P5</code>. Está usted de acuerdo? Concluya.</p>
 <p><strong>Respuesta.</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="do">## aquí va el código</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="do">## aquí va el código</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="p8" class="level3">
 <h3 class="anchored" data-anchor-id="p8">P8</h3>
 <p>Construya una función que, a partir de los niveles de expresión de lncRNAs en una persona, determine el diagnóstico de EA. Tenga en cuenta en valor de <span class="math inline">\(\theta_0\)</span> derivado en <code>P7</code>. Si <span class="math inline">\(\mathbf{x}_0\)</span> representa el vector de dichos niveles de expresión, entonces:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ejemplo predicción</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alzheimer</span>(x0)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ejemplo predicción</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alzheimer</span>(x0)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>debería reportar <code>1</code> si la persona es diagnosticada con EA, y <code>0</code> en otro caso.</p>
 </section>

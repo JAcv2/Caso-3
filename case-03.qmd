@@ -26,16 +26,14 @@ options(warn = -1)
 
 ## Introducción
 
-Los ARN no codificantes largos (lncRNAs en inglés) comprenden un vasto repertorio de ARN que desempeñan una amplia variedad de funciones cruciales en la fisiología de los tejidos de manera específica para cada célula. A pesar de estar implicados en miles de mecanismos reguladores, todavía no se ha asignado ninguna función a muchos lncRNAs. 
+Los ARN no codificantes largos (lncRNAs en inglés) comprenden un vasto repertorio de ARN que desempeñan una amplia variedad de funciones cruciales en la fisiología de los tejidos de manera específica para cada célula. A pesar de estar implicados en miles de mecanismos reguladores, todavía no se ha asignado ninguna función a muchos lncRNAs.
 
 ```{r echo=FALSE, out.width="85%", fig.cap="Clasificación de las funciones de los lncRNAs. Imagen tomada de [aquí](https://onlinelibrary.wiley.com/doi/10.1111/jcmm.13238).", fig.align='center', message=FALSE}
 require(knitr)
 knitr::include_graphics("https://www.dropbox.com/scl/fi/vgv4qeferubur5mavyy5i/lncRNAsexplained.png?rlkey=a9ele76y3v5a2ba2jamwc62o3&dl=1")
 ```
 
-
-Cada vez hay más pruebas de que los lncRNAs se expresan de forma aberrante en la progresión de la [Enfermedad de Alzheimer](https://www.mayoclinic.org/es/diseases-conditions/alzheimers-disease/symptoms-causes/syc-20350447) (EA). En nuestro grupo, hemos analizado la expresión de cientos de lncRNAs en 15 individuos diagnosticados con EA, y 15 voluntarios sin la enfermedad en el marco del proyecto de investigación "_Nuevos ARN no codificantes exo- somales y su papel en la patogénesis de la Enfermedad de Alzheimer_", código 121584468097 (844/2019), contract 416-2020, otorgado al _Grupo en Genética y Medicina Molecular_ (Departamento de Medicina), y al  _Grupo de Productividad y Competitividad_ (Departamento de Ingeniería Industrial) de la Universidad del Norte, Barranquilla, Colombia.
-
+Cada vez hay más pruebas de que los lncRNAs se expresan de forma aberrante en la progresión de la [Enfermedad de Alzheimer](https://www.mayoclinic.org/es/diseases-conditions/alzheimers-disease/symptoms-causes/syc-20350447) (EA). En nuestro grupo, hemos analizado la expresión de cientos de lncRNAs en 15 individuos diagnosticados con EA, y 15 voluntarios sin la enfermedad en el marco del proyecto de investigación "*Nuevos ARN no codificantes exo- somales y su papel en la patogénesis de la Enfermedad de Alzheimer*", código 121584468097 (844/2019), contract 416-2020, otorgado al *Grupo en Genética y Medicina Molecular* (Departamento de Medicina), y al *Grupo de Productividad y Competitividad* (Departamento de Ingeniería Industrial) de la Universidad del Norte, Barranquilla, Colombia.
 
 Una muestra de los datos puede obtenerse haciendo:
 
@@ -49,20 +47,20 @@ url <- 'https://www.dropbox.com/scl/fi/osljigmhxwcriewhpxq1s/AD_lncRNAs.txt?rlke
 d <- fread(url, header = TRUE)
 d <- as.data.frame(d)
 ```
+
 Las variables relevantes son
 
-* `id`: identificador del participante.
-* `dx`: diagnóstico del participante (`0`: no EA; `1`: EA)
-* `x1`, `x2`,..., `x29809`: niveles de expresión del lncRNA $j$, con $j=1,2,\ldots,29809$.
+-   `id`: identificador del participante.
+-   `dx`: diagnóstico del participante (`0`: no EA; `1`: EA)
+-   `x1`, `x2`,..., `x29809`: niveles de expresión del lncRNA $j$, con $j=1,2,\ldots,29809$.
 
 El objeto `d` tiene `r NROW(d)` filas y `r ncol(d)` columnas.
 
-::: {.callout-important}
-A partir de los datos, el objetivo es **identificar los lncRNAs** cuya expresión _incrementa_ o _reduce_ la probabilidad de diagnóstico de EA. 
+::: callout-important
+A partir de los datos, el objetivo es **identificar los lncRNAs** cuya expresión *incrementa* o *reduce* la probabilidad de diagnóstico de EA.
 
 **Fecha de entrega:** Junio 11, 2024.
 :::
-
 
 Como la variable respuesta es binaria, podemos utilizar las funciones que ya hemos empleado con anterioridad en Regresión Logística (RL) para medir el desempeño del modelo.
 
@@ -75,11 +73,12 @@ source('https://www.dropbox.com/s/xclvdugfbrf5ryn/logistic-functions.R?dl=1')
 
 ### P1
 
-Use una prueba $t$ de Student de 2 colas para identificar los lncRNAs diferencialmente expresados en personas con EA. Extraiga el valor $p$ y compárelo con el nivel de significancia $\alpha = 0.05$. Cuántos de estos son estadísticamente significativos?  Use la función `p.adjust()` para ajustar los valores $p$ utilizando el método  [FDR](https://www.split.io/glossary/false-discovery-rate/). Compare.
+Use una prueba $t$ de Student de 2 colas para identificar los lncRNAs diferencialmente expresados en personas con EA. Extraiga el valor $p$ y compárelo con el nivel de significancia $\alpha = 0.05$. Cuántos de estos son estadísticamente significativos? Use la función `p.adjust()` para ajustar los valores $p$ utilizando el método [FDR](https://www.split.io/glossary/false-discovery-rate/). Compare.
 
-**Respuesta.** 
+**Respuesta.**
 
 #### Segmentación del dataset
+
 Se toma un set de datos para los individuos diagnosticadas con la enfermedad y se toma otra set de datos con los individuos que no estan diagnosticadas con la enfermedad.
 
 ```{r}
@@ -109,6 +108,7 @@ Tomando como ejemplo la columna $x_{1}$ podemos identificar que el p-valor es ig
 # Grafico boxplot
 boxplot(d$x1~d$dx, horizontal = T, xlab = 'x1',ylab = 'dx',main='Boxplot variable x1 por diagnostico')
 ```
+
 En la figura anterior se logra identificar graficamente las diferencias entre los individuos diagnosticados con la enfermedad (EA) y los individuos diagnoticados sin la enfermedad (Control).
 
 A continuacion se realizara la prueba t de student para cada uno de los 29.809 niveles de expresion del IncRNA
@@ -138,13 +138,13 @@ El método fdr se refiere a la corrección de Benjamini-Hochberg (Benjamini & Ho
 ```{r}
 # ajustar con el método FDR
 res$p_valor_adj <- p.adjust(res$p_valor, method = "fdr")
-
 ```
 
 ```{r}
 head(res)
 ```
-#### Comparación de p_valor aplicando el metodo FDR 
+
+#### Comparación de p_valor aplicando el metodo FDR
 
 ```{r}
 #conteo de significativos
@@ -153,16 +153,16 @@ sig_con_ajuste <- sum(res$p_valor_adj < 0.05)
 cat("lncRNAs significativos sin ajuste:", sig_sin_ajuste, "\n")
 cat("lncRNAs significativos con ajuste FDR:", sig_con_ajuste, "\n")
 ```
+
 Después del ajuste FDR, los p-valores no eran suficientemente bajos para ser considerados significativos bajo un nivel de significancia del 5% ($\alpha=0.05$). Esto indica que las diferencias observadas en las pruebas originales no son estadísticamente robustas cuando se considera el problema de múltiples comparaciones.
 
 ### P2
 
-Construya una función que, a partir del _número_ del lncRNA, estime el modelo de RL, extraiga el coeficiente estimado, el estadístico $t$ y el valor $p$.  Por ejemplo, para el lncRNA $j$, aplicar `my_magical_function(j)` debe producir $\hat{\beta}_j$, $t_j$ y $p_j$.
+Construya una función que, a partir del *número* del lncRNA, estime el modelo de RL, extraiga el coeficiente estimado, el estadístico $t$ y el valor $p$. Por ejemplo, para el lncRNA $j$, aplicar `my_magical_function(j)` debe producir $\hat{\beta}_j$, $t_j$ y $p_j$.
 
-**Respuesta.** 
+**Respuesta.**
 
 #### Función
-
 
 ```{r}
 my_magical_function <- function(j) {
@@ -192,10 +192,9 @@ my_magical_function <- function(j) {
 my_magical_function(1)
 ```
 
-
 ### P3
 
-Realice el mismo análisis que en `P1`, pero ahora estandarice los niveles de expresión.  Apóyese en la función `scale()`.  Considera usted que la estandarización es necesaria?  Por qué si?  Por qué no?  Compare los resultados cuando usa estandarización y cuando no.
+Realice el mismo análisis que en `P1`, pero ahora estandarice los niveles de expresión. Apóyese en la función `scale()`. Considera usted que la estandarización es necesaria? Por qué si? Por qué no? Compare los resultados cuando usa estandarización y cuando no.
 
 #### Prueba T Studen de dos colas
 
@@ -227,7 +226,7 @@ res$p_valor_adj <- p.adjust(res$p_valor, method = "fdr")
 head(res)
 ```
 
-#### Comparación de p_valor aplicando el metodo FDR 
+#### Comparación de p_valor aplicando el metodo FDR
 
 ```{r}
 # Cuantos son estadisticamente significativos
@@ -253,9 +252,9 @@ El modelo de regresión logística evalua la relación entre una variable indepe
 
 ### P5
 
-Ordene los resultados obtenidos de acuerdo con el valor $p$ y extraiga los 10 lncRNAs más significativos de acuerdo con el valor $p$. Cuántos de ellos confieren _riesgo_ y cuántos _protección_ contra EA? Concluya.
-  
-**Respuesta.** 
+Ordene los resultados obtenidos de acuerdo con el valor $p$ y extraiga los 10 lncRNAs más significativos de acuerdo con el valor $p$. Cuántos de ellos confieren *riesgo* y cuántos *protección* contra EA? Concluya.
+
+**Respuesta.**
 
 ```{r}
 # dataset de resultados
@@ -287,35 +286,204 @@ proteccion <- sum(head(res_ord,10)$coef < 0)
 cat("Número de lncRNAs que confieren riesgo:", riesgo, "\n")
 cat("Número de lncRNAs que confieren protección:", proteccion, "\n")
 ```
+
 De los 10 lncRNAs más significativos identificados en el análisis, la mayoría (9) están asociados con un mayor riesgo de desarrollar EA. Esto significa que estos 9 lncRNAs tienen una mayor expresión en las personas con EA comparado con las personas sin EA.
 
 Solo 1 lncRNA se asoció con protección contra EA, indicando que su mayor expresión podría estar relacionada con una menor probabilidad de tener EA.
 
 ### P6
 
-Construya un modelo de RL que incluya los lncRNAs seleccionados en `P5`.  Evalúe la [idoneidad](https://jivelez.github.io/book-adii/glm.html#regresi%C3%B3n-log%C3%ADstica). Concluya.
+Construya un modelo de RL que incluya los lncRNAs seleccionados en `P5`. Evalúe la [idoneidad](https://jivelez.github.io/book-adii/glm.html#regresi%C3%B3n-log%C3%ADstica). Concluya.
 
-**Respuesta.** 
+**Respuesta.**
 
 ```{r}
-## aquí va el código
+lncRNAs_sig <- head(res_ord,10)
+lncRNAs_sel <- lncRNAs_sig$lncRNA
+df_sig <- d[, c("dx", lncRNAs_sel)]
+formula <- as.formula(paste("dx ~", paste(lncRNAs_sel, collapse = " + ")))
+modelo <- glm(formula, data = df_sig, family = binomial)
+summary(modelo)
+```
+Las probabilidades predichas fueron exactamente 0 o 1. Esto puede ocurrir por Multicolinealidad(cuando dos o más variables predictoras están altamente correlacionadas).
+
+Para identificar si las variables predictoras del modelo presentan multicolinealidad, se aplicara el factor de inflacion de varianza(VIF por sus siglas en ingles.
+
+Interpretación del VIF
+- VIF = 1: No hay correlación entre la variable predictora $x_{j}$ y las demás variables predictoras.
+
+- 1 < VIF < 5: Existe una correlación moderada, pero generalmente se considera aceptable.
+
+- VIF > 5: Alta correlación y posible problema de multicolinealidad.
+
+- VIF > 10: Problema severo de multicolinealidad, y se recomienda tomar acciones para mitigarla, como eliminar la variable problemática o combinar variables correlacionadas.
+
+```{r}
+library(car)
+# Calcular el factor de inflación de la varianza (VIF)
+vif(modelo)
+```
+Como se identifica las variables predictoras presentan alta colinealidad, por lo tanto se debe a retirar del modelo la variable con mayor valor VIF, en este "x9628" presenta un valor de $115.368009$.
+
+Se retira la variable predictora del modelo y se vuelve a generar el modelo:
+
+```{r}
+lncRNAs_sel<-setdiff(lncRNAs_sel,"x9628")
+df_sig<-subset(df_sig, select = -x9628)
+formula <- as.formula(paste("dx ~", paste(lncRNAs_sel, collapse = " + ")))
+modelo <- glm(formula, data = df_sig, family = binomial)
+summary(modelo)
+```
+Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.
+
+Se aplica nuvamente VIF
+
+```{r}
+library(car)
+# Calcular el factor de inflación de la varianza (VIF)
+vif(modelo)
 ```
 
+Se retira la variable predictora "x3994" del modelo y se vuelve a generar el modelo:
+
+```{r}
+lncRNAs_sel<-setdiff(lncRNAs_sel,"x3994")
+df_sig<-subset(df_sig, select = -x3994)
+formula <- as.formula(paste("dx ~", paste(lncRNAs_sel, collapse = " + ")))
+modelo <- glm(formula, data = df_sig, family = binomial)
+summary(modelo)
+```
+Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.
+
+Se aplica nuvamente VIF
+
+```{r}
+library(car)
+# Calcular el factor de inflación de la varianza (VIF)
+vif(modelo)
+```
+
+Se retira la variable predictora "x6768" del modelo y se vuelve a generar el modelo:
+
+```{r}
+lncRNAs_sel<-setdiff(lncRNAs_sel,"x6768")
+df_sig<-subset(df_sig, select = -x6768)
+formula <- as.formula(paste("dx ~", paste(lncRNAs_sel, collapse = " + ")))
+modelo <- glm(formula, data = df_sig, family = binomial)
+summary(modelo)
+```
+
+e identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.
+
+Se aplica nuvamente VIF
+
+```{r}
+library(car)
+# Calcular el factor de inflación de la varianza (VIF)
+vif(modelo)
+```
+
+Se retira la variable predictora "x6768" del modelo y se vuelve a generar el modelo:
+
+```{r}
+lncRNAs_sel<-setdiff(lncRNAs_sel,"x2326")
+df_sig<-subset(df_sig, select = -x2326)
+formula <- as.formula(paste("dx ~", paste(lncRNAs_sel, collapse = " + ")))
+modelo <- glm(formula, data = df_sig, family = binomial)
+summary(modelo)
+```
+
+Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.
+
+Se aplica nuvamente VIF
+
+```{r}
+library(car)
+# Calcular el factor de inflación de la varianza (VIF)
+vif(modelo)
+```
+
+Se retira la variable predictora "x24198" del modelo y se vuelve a generar el modelo:
+
+```{r}
+lncRNAs_sel<-setdiff(lncRNAs_sel,"x24198")
+df_sig<-subset(df_sig, select = -x24198)
+formula <- as.formula(paste("dx ~", paste(lncRNAs_sel, collapse = " + ")))
+modelo <- glm(formula, data = df_sig, family = binomial)
+summary(modelo)
+```
+Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.
+
+Se aplica nuvamente VIF
+
+```{r}
+library(car)
+# Calcular el factor de inflación de la varianza (VIF)
+vif(modelo)
+```
+
+Se retira la variable predictora "x1457" del modelo y se vuelve a generar el modelo:
+
+```{r}
+lncRNAs_sel<-setdiff(lncRNAs_sel,"x1457")
+df_sig<-subset(df_sig, select = -x1457)
+formula <- as.formula(paste("dx ~", paste(lncRNAs_sel, collapse = " + ")))
+modelo <- glm(formula, data = df_sig, family = binomial)
+summary(modelo)
+```
+
+Se identifica que en el modelo aun las probabilidades predichas son exactamente 0 o 1.
+
+Se aplica nuvamente VIF
+
+```{r}
+library(car)
+# Calcular el factor de inflación de la varianza (VIF)
+vif(modelo)
+```
+Una vez identificamos que el modelo no presenta multicolinealidad en las variables y aun las probabilidades predichas son exactamente uno, se procede a identificar que la conbinacion de variables predicen correctamente el resultado:
+
+```{r}
+# Verificar la tabla de contingencia para la separación perfecta
+table(df_sig$dx, predict(modelo, type = "response") > 0.5)
+```
+En la tabla de contingencia se identifica que existe separacion perfecta en el set de datos, esto significa que pueden existir variables que pueden predecir el resultado de la variable predicha de manera perfecta.
+
+Con el objetivo de identificar que variables preductoras estan causando una separacion perfecta, se ajustan modelos de regresión logística simple para cada predictor:
+
+```{r}
+# Crear una función para verificar la separación perfecta para cada predictor
+verificar_separacion <- function(data, predictor) {
+  modelo <- glm(dx ~ ., data = data[, c("dx", predictor)], family = binomial)
+  predicciones <- predict(modelo, type = "response")
+  tabla <- table(data$dx, predicciones > 0.5)
+  return(tabla)
+}
+
+# Verificar la separación perfecta para cada predictor
+for (predictor in colnames(df_sig)[-1]) {
+  cat("Variable:", predictor, "\n")
+  print(verificar_separacion(df_sig, predictor))
+  cat("\n")
+}
+
+```
+
+Los resultados indican que ninguna de las variables individuales causa una separación perfecta, pero la combinación de varias de ellas parece llevar a una separación perfecta cuando se usan todas juntas en el modelo.
 
 ### P7
 
-Utilizando el criterio $S_e \approx S_p$, se determinó que el _cutoff_  óptimo como $\theta_0 = 0.3$  con base en el modelo modelo de RL ajustastado en `P5`. Está usted de acuerdo? Concluya.  
+Utilizando el criterio $S_e \approx S_p$, se determinó que el *cutoff* óptimo como $\theta_0 = 0.3$ con base en el modelo modelo de RL ajustastado en `P5`. Está usted de acuerdo? Concluya.
 
-**Respuesta.** 
+**Respuesta.**
 
 ```{r}
 ## aquí va el código
 ```
 
-
 ### P8
 
-Construya una función que, a partir de los niveles de expresión de lncRNAs en una persona, determine el diagnóstico de EA. Tenga en cuenta en valor de  $\theta_0$ derivado en `P7`. Si $\mathbf{x}_0$ representa el vector de dichos niveles de expresión, entonces:
+Construya una función que, a partir de los niveles de expresión de lncRNAs en una persona, determine el diagnóstico de EA. Tenga en cuenta en valor de $\theta_0$ derivado en `P7`. Si $\mathbf{x}_0$ representa el vector de dichos niveles de expresión, entonces:
 
 ```{r eval=FALSE}
 ## ejemplo predicción
@@ -324,22 +492,18 @@ alzheimer(x0)
 
 debería reportar `1` si la persona es diagnosticada con EA, y `0` en otro caso.
 
-
 ### P9
 
-Repita `P2` pero use un modelo de [Regresión Lineal Simple](https://jivelez.github.io/book-adii/rls.html)(RLS) en lugar de un modelo de RL. Compare los resultados y concluya.  Con base en los resultados obtenidos, cree usted que tiene sentido (o hace alguna diferencia) usar RLS en lugar de RL?. Justifique.
-
+Repita `P2` pero use un modelo de [Regresión Lineal Simple](https://jivelez.github.io/book-adii/rls.html)(RLS) en lugar de un modelo de RL. Compare los resultados y concluya. Con base en los resultados obtenidos, cree usted que tiene sentido (o hace alguna diferencia) usar RLS en lugar de RL?. Justifique.
 
 ### P10
 
 Suponga que se ajustan los modelos
 
-$M_1:$ `glm(dx ~ x1, family = 'binomial', data = d)` 
-</br>
-$M_2:$ `glm(dx ~ x1 + x2, family = 'binomial', data = d)`
+$M_1:$ `glm(dx ~ x1, family = 'binomial', data = d)` </br> $M_2:$ `glm(dx ~ x1 + x2, family = 'binomial', data = d)`
 
 tal que $M_1 \subseteq M_2$.
 
 Después del proceso de estimación, se obtuvieron los coeficientes $(\hat{\beta}_{0,M_1}, \hat{\beta}_{1,M_1})$ y $(\hat{\beta}_{0,M_2}, \hat{\beta}_{1,M_2}, \hat{\beta}_{2,M_2})$ con base en una muestra de tamaño $n$ almacenada en el objeto `d`.
 
-Interprete $\hat{\beta}_{1,M_1}$ y $\hat{\beta}_{1,M_2}$.  Qué representa $\hat{\beta}_{2,M_2}$?.
+Interprete $\hat{\beta}_{1,M_1}$ y $\hat{\beta}_{1,M_2}$. Qué representa $\hat{\beta}_{2,M_2}$?.
