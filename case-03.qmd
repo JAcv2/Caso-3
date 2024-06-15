@@ -513,8 +513,30 @@ Después de realizar estos cálculos, si encontramos que la sensibilidad y espec
 
 Construya una función que, a partir de los niveles de expresión de lncRNAs en una persona, determine el diagnóstico de EA. Tenga en cuenta en valor de $\theta_0$ derivado en `P7`. Si $\mathbf{x}_0$ representa el vector de dichos niveles de expresión, entonces:
 
+#### Modelo
+
+```{r}
+summary(modelo)
+```
+
+#### Función
+
+```{r}
+# Definir la función de diagnóstico
+alzheimer <- function(x0) {
+  # x0 es un vector con los niveles de expresión de lncRNAs
+  prob_pred <- predict(modelo, newdata = x0, type = "response")
+  if (prob_pred > 0.3) {
+    return(1)  # Diagnóstico de EA
+  } else {
+    return(0)  # No EA
+  }
+}
+```
+
 ```{r eval=FALSE}
 ## ejemplo predicción
+x0 <- df_sig[16,-1] 
 alzheimer(x0)
 ```
 

@@ -4061,11 +4061,54 @@ Variable: x27459
 <section id="p8" class="level3">
 <h3 class="anchored" data-anchor-id="p8">P8</h3>
 <p>Construya una función que, a partir de los niveles de expresión de lncRNAs en una persona, determine el diagnóstico de EA. Tenga en cuenta en valor de <span class="math inline">\(\theta_0\)</span> derivado en <code>P7</code>. Si <span class="math inline">\(\mathbf{x}_0\)</span> representa el vector de dichos niveles de expresión, entonces:</p>
+<section id="modelo" class="level4">
+<h4 class="anchored" data-anchor-id="modelo">Modelo</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ejemplo predicción</span></span>
-<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alzheimer</span>(x0)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = formula, family = binomial, data = df_sig)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)     456.34 1348528.38   0.000    1.000
+x4634           -27.97   78759.77   0.000    1.000
+x12278         -328.64  364882.13  -0.001    0.999
+x2114            72.86   72902.53   0.001    0.999
+x27459           75.24  200540.85   0.000    1.000
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4.1589e+01  on 29  degrees of freedom
+Residual deviance: 2.1607e-09  on 25  degrees of freedom
+AIC: 10
+
+Number of Fisher Scoring iterations: 25</code></pre>
+</div>
+</div>
+</section>
+<section id="función-1" class="level4">
+<h4 class="anchored" data-anchor-id="función-1">Función</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Definir la función de diagnóstico</span></span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>alzheimer <span class="ot">&lt;-</span> <span class="cf">function</span>(x0) {</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># x0 es un vector con los niveles de expresión de lncRNAs</span></span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>  prob_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo, <span class="at">newdata =</span> x0, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (prob_pred <span class="sc">&gt;</span> <span class="fl">0.3</span>) {</span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="dv">1</span>)  <span class="co"># Diagnóstico de EA</span></span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="dv">0</span>)  <span class="co"># No EA</span></span>
+<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb83-10"><a href="#cb83-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ejemplo predicción</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>x0 <span class="ot">&lt;-</span> df_sig[<span class="dv">16</span>,<span class="sc">-</span><span class="dv">1</span>] </span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="fu">alzheimer</span>(x0)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>debería reportar <code>1</code> si la persona es diagnosticada con EA, y <code>0</code> en otro caso.</p>
+</section>
 </section>
 <section id="p9" class="level3">
 <h3 class="anchored" data-anchor-id="p9">P9</h3>
