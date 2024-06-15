@@ -3632,7 +3632,8 @@ mean of x mean of y
 <section id="p6" class="level3">
 <h3 class="anchored" data-anchor-id="p6">P6</h3>
 <p>Construya un modelo de RL que incluya los lncRNAs seleccionados en <code>P5</code>. Evalúe la <a href="https://jivelez.github.io/book-adii/glm.html#regresi%C3%B3n-log%C3%ADstica">idoneidad</a>. Concluya.</p>
-<p><strong>Respuesta.</strong></p>
+<section id="modelo-regresión-logística" class="level4">
+<h4 class="anchored" data-anchor-id="modelo-regresión-logística">Modelo Regresión Logística</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>lncRNAs_sig <span class="ot">&lt;-</span> <span class="fu">head</span>(res_ord,<span class="dv">10</span>)</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>lncRNAs_sel <span class="ot">&lt;-</span> lncRNAs_sig<span class="sc">$</span>lncRNA</span>
@@ -3669,6 +3670,9 @@ Number of Fisher Scoring iterations: 25</code></pre>
 </div>
 </div>
 <p>Las probabilidades predichas fueron exactamente 0 o 1. Esto puede ocurrir por Multicolinealidad(cuando dos o más variables predictoras están altamente correlacionadas).</p>
+</section>
+<section id="factor-de-inflación-de-varianza-vif" class="level4">
+<h4 class="anchored" data-anchor-id="factor-de-inflación-de-varianza-vif">Factor de inflación de varianza (VIF)</h4>
 <p>Para identificar si las variables predictoras del modelo presentan multicolinealidad, se aplicara el factor de inflacion de varianza(VIF por sus siglas en ingles.</p>
 <p>Interpretación del VIF - VIF = 1: No hay correlación entre la variable predictora <span class="math inline">\(x_{j}\)</span> y las demás variables predictoras.</p>
 <ul>
@@ -3957,7 +3961,10 @@ Number of Fisher Scoring iterations: 25</code></pre>
 2.150279 3.332190 2.717265 2.685433 </code></pre>
 </div>
 </div>
-<p>Una vez identificamos que el modelo no presenta multicolinealidad en las variables y aun las probabilidades predichas son exactamente uno, se procede a identificar que la conbinacion de variables predicen correctamente el resultado:</p>
+<p>Una vez identificamos que el modelo no presenta multicolinealidad en las variables y aun las probabilidades predichas son exactamente uno, se procede a identificar que la combinacion de variables predicen correctamente el resultado:</p>
+</section>
+<section id="predicción" class="level4">
+<h4 class="anchored" data-anchor-id="predicción">Predicción</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar la tabla de contingencia para la separación perfecta</span></span>
 <span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(df_sig<span class="sc">$</span>dx, <span class="fu">predict</span>(modelo, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>) <span class="sc">&gt;</span> <span class="fl">0.5</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -4013,20 +4020,50 @@ Variable: x27459
 </div>
 <p>Los resultados indican que ninguna de las variables individuales causa una separación perfecta, pero la combinación de varias de ellas parece llevar a una separación perfecta cuando se usan todas juntas en el modelo.</p>
 </section>
+</section>
 <section id="p7" class="level3">
 <h3 class="anchored" data-anchor-id="p7">P7</h3>
 <p>Utilizando el criterio <span class="math inline">\(S_e \approx S_p\)</span>, se determinó que el <em>cutoff</em> óptimo como <span class="math inline">\(\theta_0 = 0.3\)</span> con base en el modelo modelo de RL ajustastado en <code>P5</code>. Está usted de acuerdo? Concluya.</p>
-<p><strong>Respuesta.</strong></p>
+<section id="probabilideades-predichas" class="level4">
+<h4 class="anchored" data-anchor-id="probabilideades-predichas">Probabilideades predichas</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="do">## aquí va el código</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>prob_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular las predicciones binarias con el cutoff 0.3</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>predicciones_binarias <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(prob_pred <span class="sc">&gt;</span> <span class="fl">0.3</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear una matriz de confusión</span></span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>matriz_confusion <span class="ot">&lt;-</span> <span class="fu">table</span>(df_sig<span class="sc">$</span>dx, predicciones_binarias)</span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular la sensibilidad y especificidad</span></span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a>verdaderos_positivos <span class="ot">&lt;-</span> matriz_confusion[<span class="dv">2</span>, <span class="dv">2</span>]</span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a>falsos_negativos <span class="ot">&lt;-</span> matriz_confusion[<span class="dv">2</span>, <span class="dv">1</span>]</span>
+<span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a>verdaderos_negativos <span class="ot">&lt;-</span> matriz_confusion[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a>falsos_positivos <span class="ot">&lt;-</span> matriz_confusion[<span class="dv">1</span>, <span class="dv">2</span>]</span>
+<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-13"><a href="#cb77-13" aria-hidden="true" tabindex="-1"></a>sensibilidad <span class="ot">&lt;-</span> verdaderos_positivos <span class="sc">/</span> (verdaderos_positivos <span class="sc">+</span> falsos_negativos)</span>
+<span id="cb77-14"><a href="#cb77-14" aria-hidden="true" tabindex="-1"></a>especificidad <span class="ot">&lt;-</span> verdaderos_negativos <span class="sc">/</span> (verdaderos_negativos <span class="sc">+</span> falsos_positivos)</span>
+<span id="cb77-15"><a href="#cb77-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-16"><a href="#cb77-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Imprimir sensibilidad y especificidad</span></span>
+<span id="cb77-17"><a href="#cb77-17" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Sensibilidad:&quot;</span>, sensibilidad, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Sensibilidad: 1 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Especificidad:&quot;</span>, especificidad, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Especificidad: 1 </code></pre>
+</div>
+</div>
+<p>Después de realizar estos cálculos, si encontramos que la sensibilidad y especificidad son aproximadamente iguales, podemos concluir que el cutoff <span class="math inline">\(\theta_0 = 0.3\)</span> es adecuado.</p>
+</section>
 </section>
 <section id="p8" class="level3">
 <h3 class="anchored" data-anchor-id="p8">P8</h3>
 <p>Construya una función que, a partir de los niveles de expresión de lncRNAs en una persona, determine el diagnóstico de EA. Tenga en cuenta en valor de <span class="math inline">\(\theta_0\)</span> derivado en <code>P7</code>. Si <span class="math inline">\(\mathbf{x}_0\)</span> representa el vector de dichos niveles de expresión, entonces:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ejemplo predicción</span></span>
-<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alzheimer</span>(x0)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ejemplo predicción</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a><span class="fu">alzheimer</span>(x0)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>debería reportar <code>1</code> si la persona es diagnosticada con EA, y <code>0</code> en otro caso.</p>
 </section>

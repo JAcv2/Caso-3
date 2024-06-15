@@ -295,7 +295,7 @@ Solo 1 lncRNA se asoció con protección contra EA, indicando que su mayor expre
 
 Construya un modelo de RL que incluya los lncRNAs seleccionados en `P5`. Evalúe la [idoneidad](https://jivelez.github.io/book-adii/glm.html#regresi%C3%B3n-log%C3%ADstica). Concluya.
 
-**Respuesta.**
+#### Modelo Regresión Logística
 
 ```{r}
 lncRNAs_sig <- head(res_ord,10)
@@ -306,6 +306,8 @@ modelo <- glm(formula, data = df_sig, family = binomial)
 summary(modelo)
 ```
 Las probabilidades predichas fueron exactamente 0 o 1. Esto puede ocurrir por Multicolinealidad(cuando dos o más variables predictoras están altamente correlacionadas).
+
+#### Factor de inflación de varianza (VIF)
 
 Para identificar si las variables predictoras del modelo presentan multicolinealidad, se aplicara el factor de inflacion de varianza(VIF por sus siglas en ingles.
 
@@ -441,7 +443,9 @@ library(car)
 # Calcular el factor de inflación de la varianza (VIF)
 vif(modelo)
 ```
-Una vez identificamos que el modelo no presenta multicolinealidad en las variables y aun las probabilidades predichas son exactamente uno, se procede a identificar que la conbinacion de variables predicen correctamente el resultado:
+Una vez identificamos que el modelo no presenta multicolinealidad en las variables y aun las probabilidades predichas son exactamente uno, se procede a identificar que la combinacion de variables predicen correctamente el resultado:
+
+#### Predicción
 
 ```{r}
 # Verificar la tabla de contingencia para la separación perfecta
@@ -475,11 +479,35 @@ Los resultados indican que ninguna de las variables individuales causa una separ
 
 Utilizando el criterio $S_e \approx S_p$, se determinó que el *cutoff* óptimo como $\theta_0 = 0.3$ con base en el modelo modelo de RL ajustastado en `P5`. Está usted de acuerdo? Concluya.
 
-**Respuesta.**
+#### Probabilideades predichas
 
 ```{r}
-## aquí va el código
+prob_pred <- predict(modelo, type = "response")
 ```
+
+```{r}
+# Calcular las predicciones binarias con el cutoff 0.3
+predicciones_binarias <- ifelse(prob_pred > 0.3, 1, 0)
+
+# Crear una matriz de confusión
+matriz_confusion <- table(df_sig$dx, predicciones_binarias)
+
+# Calcular la sensibilidad y especificidad
+verdaderos_positivos <- matriz_confusion[2, 2]
+falsos_negativos <- matriz_confusion[2, 1]
+verdaderos_negativos <- matriz_confusion[1, 1]
+falsos_positivos <- matriz_confusion[1, 2]
+
+sensibilidad <- verdaderos_positivos / (verdaderos_positivos + falsos_negativos)
+especificidad <- verdaderos_negativos / (verdaderos_negativos + falsos_positivos)
+
+# Imprimir sensibilidad y especificidad
+cat("Sensibilidad:", sensibilidad, "\n")
+cat("Especificidad:", especificidad, "\n")
+
+```
+Después de realizar estos cálculos, si encontramos que la sensibilidad y especificidad son aproximadamente iguales, podemos concluir que el cutoff $\theta_0 = 0.3$ es adecuado.
+
 
 ### P8
 
