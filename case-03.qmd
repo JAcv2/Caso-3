@@ -546,6 +546,39 @@ debería reportar `1` si la persona es diagnosticada con EA, y `0` en otro caso.
 
 Repita `P2` pero use un modelo de [Regresión Lineal Simple](https://jivelez.github.io/book-adii/rls.html)(RLS) en lugar de un modelo de RL. Compare los resultados y concluya. Con base en los resultados obtenidos, cree usted que tiene sentido (o hace alguna diferencia) usar RLS en lugar de RL?. Justifique.
 
+#### Función
+
+```{r}
+my_magical_function2 <- function(j) {
+  # Concatenar x con el numero de j
+  col_name <- paste0("x", j)
+  # Concatenar dx ~ con xj
+  formula <- as.formula(paste("dx ~", col_name))
+  # Modelo
+  modelo <- lm(formula, data = d)
+  # coeficientes
+  coef <- summary(modelo)$coefficients
+  # Valores estimados
+  beta_j <- coef[2, 1] # coeficiente estimado
+  t_j <- coef[2, 3]    # estadistico t
+  p_j <- coef[2, 4]    # p valor
+  
+  return(cat("Resultados:", "\n",
+             "1. Coeficiente estimado:", beta_j, "\n",
+             "2. Estadístico t:", t_j, "\n",
+             "3. Valor p:", p_j, "\n"))
+}
+```
+
+#### Ejemplo de aplicación de la formula:
+
+```{r}
+my_magical_function2(1)
+```
+```{r}
+my_magical_function(1)
+```
+
 ### P10
 
 Suponga que se ajustan los modelos
