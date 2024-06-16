@@ -179,7 +179,7 @@ my_magical_function <- function(j) {
   t_j <- coef[2, 3]    # estadistico t
   p_j <- coef[2, 4]    # p valor
   
-  return(cat("Resultados:", "\n",
+  return(cat("Resultados Regresión Logística:", "\n",
              "1. Coeficiente estimado:", beta_j, "\n",
              "2. Estadístico t:", t_j, "\n",
              "3. Valor p:", p_j, "\n"))
@@ -555,15 +555,15 @@ my_magical_function2 <- function(j) {
   # Concatenar dx ~ con xj
   formula <- as.formula(paste("dx ~", col_name))
   # Modelo
-  modelo <- lm(formula, data = d)
+  modelo2 <- lm(formula, data = d)
   # coeficientes
-  coef <- summary(modelo)$coefficients
+  coef <- summary(modelo2)$coefficients
   # Valores estimados
   beta_j <- coef[2, 1] # coeficiente estimado
   t_j <- coef[2, 3]    # estadistico t
   p_j <- coef[2, 4]    # p valor
   
-  return(cat("Resultados:", "\n",
+  return(cat("Resultados Regresión Lineal:", "\n",
              "1. Coeficiente estimado:", beta_j, "\n",
              "2. Estadístico t:", t_j, "\n",
              "3. Valor p:", p_j, "\n"))
@@ -573,11 +573,23 @@ my_magical_function2 <- function(j) {
 #### Ejemplo de aplicación de la formula:
 
 ```{r}
-my_magical_function2(1)
+my_magical_function2(2)
 ```
 ```{r}
-my_magical_function(1)
+my_magical_function(2)
 ```
+Para determinar si un modelo de regresión logística es mejor que un modelo de regresión lineal, se debe considerar varios aspectos, ya que estos modelos tienen diferentes propósitos y se aplican en distintos contextos. La regresión logística se utiliza principalmente para predecir una variable de respuesta binaria (0 o 1), mientras que la regresión lineal se utiliza para predecir una variable de respuesta continua.
+
+**Coeficientes Estimados**
+
+Regresión Lineal: 
+
+El coeficiente estimado representa el cambio promedio en la variable dependiente por cada unidad de cambio en la variable independiente.
+
+Regresión Logística: 
+
+El coeficiente estimado representa el cambio en el log-odds de la variable dependiente por cada unidad de cambio en la variable independiente. En otras palabras, un coeficiente negativo en un modelo logístico indica que un aumento en la variable independiente está asociado con una disminución en la probabilidad del evento, en este caso, el diagnóstico de EA.
+
 
 ### P10
 
@@ -590,3 +602,28 @@ tal que $M_1 \subseteq M_2$.
 Después del proceso de estimación, se obtuvieron los coeficientes $(\hat{\beta}_{0,M_1}, \hat{\beta}_{1,M_1})$ y $(\hat{\beta}_{0,M_2}, \hat{\beta}_{1,M_2}, \hat{\beta}_{2,M_2})$ con base en una muestra de tamaño $n$ almacenada en el objeto `d`.
 
 Interprete $\hat{\beta}_{1,M_1}$ y $\hat{\beta}_{1,M_2}$. Qué representa $\hat{\beta}_{2,M_2}$?.
+
+#### Modelos
+
+```{r}
+m1 <- glm(dx ~ x1, family = 'binomial', data = d)
+m2 <- glm(dx ~ x1 + x2, family = 'binomial', data = d)
+```
+
+#### Coeficientes
+
+```{r}
+summary(m1)
+summary(m2)
+```
+
+$\hat{\beta}_{1,M_1} = -0.2899$
+En el modelo $m1$, por cada unidad de aumento en $x1$, los log-odds de $dx$ disminuyen en $0.2899$. Este coeficiente no es estadísticamente significativo $p=0.716$.
+
+$\hat{\beta}_{1,M_2} = -0.6017$
+En el modelo $m2$, por cada unidad de aumento en $x2$, los log-odds de $dx$ disminuyen en $0.6017$, manteniendo $x_1$ constante. Este coeficiente no es estadísticamente significativo $p=0.684$.
+
+$\hat{\beta}_{2,M_2}$
+Representa el cambio en los log-odds de $dx$ por cada unidad de cambio en $x_2$, manteniendo $x_1$ constante. Este coeficiente no es significativo $p=0.684$, lo que sugiere que $x_2$ tampoco tiene un efecto significativo en los log-odds de $dx$.
+
+Comparando el resumen de los dos modelos podeos concluir que Dado que ningún coeficiente en ambos modelos es significativo y la residual deviance no se reduce sustancialmente con la adición de $x_2$, podríamos concluir que ninguno de los predictores $x_1$ y $x_2$ es un buen predictor de $dx$ en este conjunto de datos.

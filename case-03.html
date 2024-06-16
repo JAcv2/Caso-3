@@ -3472,7 +3472,7 @@ mean of x mean of y
 <span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  t_j <span class="ot">&lt;-</span> coef[<span class="dv">2</span>, <span class="dv">3</span>]    <span class="co"># estadistico t</span></span>
 <span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  p_j <span class="ot">&lt;-</span> coef[<span class="dv">2</span>, <span class="dv">4</span>]    <span class="co"># p valor</span></span>
 <span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">cat</span>(<span class="st">&quot;Resultados:&quot;</span>, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">cat</span>(<span class="st">&quot;Resultados Regresión Logística:&quot;</span>, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
 <span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;1. Coeficiente estimado:&quot;</span>, beta_j, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
 <span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;2. Estadístico t:&quot;</span>, t_j, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
 <span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;3. Valor p:&quot;</span>, p_j, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))</span>
@@ -3484,7 +3484,7 @@ mean of x mean of y
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">my_magical_function</span>(<span class="dv">1</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Resultados: 
+<pre><code>Resultados Regresión Logística: 
  1. Coeficiente estimado: -0.2899068 
  2. Estadístico t: -0.3636479 
  3. Valor p: 0.716121 </code></pre>
@@ -4122,15 +4122,15 @@ Number of Fisher Scoring iterations: 25</code></pre>
 <span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Concatenar dx ~ con xj</span></span>
 <span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>  formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;dx ~&quot;</span>, col_name))</span>
 <span id="cb85-6"><a href="#cb85-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Modelo</span></span>
-<span id="cb85-7"><a href="#cb85-7" aria-hidden="true" tabindex="-1"></a>  modelo <span class="ot">&lt;-</span> <span class="fu">lm</span>(formula, <span class="at">data =</span> d)</span>
+<span id="cb85-7"><a href="#cb85-7" aria-hidden="true" tabindex="-1"></a>  modelo2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(formula, <span class="at">data =</span> d)</span>
 <span id="cb85-8"><a href="#cb85-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># coeficientes</span></span>
-<span id="cb85-9"><a href="#cb85-9" aria-hidden="true" tabindex="-1"></a>  coef <span class="ot">&lt;-</span> <span class="fu">summary</span>(modelo)<span class="sc">$</span>coefficients</span>
+<span id="cb85-9"><a href="#cb85-9" aria-hidden="true" tabindex="-1"></a>  coef <span class="ot">&lt;-</span> <span class="fu">summary</span>(modelo2)<span class="sc">$</span>coefficients</span>
 <span id="cb85-10"><a href="#cb85-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Valores estimados</span></span>
 <span id="cb85-11"><a href="#cb85-11" aria-hidden="true" tabindex="-1"></a>  beta_j <span class="ot">&lt;-</span> coef[<span class="dv">2</span>, <span class="dv">1</span>] <span class="co"># coeficiente estimado</span></span>
 <span id="cb85-12"><a href="#cb85-12" aria-hidden="true" tabindex="-1"></a>  t_j <span class="ot">&lt;-</span> coef[<span class="dv">2</span>, <span class="dv">3</span>]    <span class="co"># estadistico t</span></span>
 <span id="cb85-13"><a href="#cb85-13" aria-hidden="true" tabindex="-1"></a>  p_j <span class="ot">&lt;-</span> coef[<span class="dv">2</span>, <span class="dv">4</span>]    <span class="co"># p valor</span></span>
 <span id="cb85-14"><a href="#cb85-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb85-15"><a href="#cb85-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">cat</span>(<span class="st">&quot;Resultados:&quot;</span>, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb85-15"><a href="#cb85-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">cat</span>(<span class="st">&quot;Resultados Regresión Lineal:&quot;</span>, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
 <span id="cb85-16"><a href="#cb85-16" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;1. Coeficiente estimado:&quot;</span>, beta_j, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
 <span id="cb85-17"><a href="#cb85-17" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;2. Estadístico t:&quot;</span>, t_j, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
 <span id="cb85-18"><a href="#cb85-18" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;3. Valor p:&quot;</span>, p_j, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))</span>
@@ -4140,23 +4140,29 @@ Number of Fisher Scoring iterations: 25</code></pre>
 <section id="ejemplo-de-aplicación-de-la-formula-1" class="level4">
 <h4 class="anchored" data-anchor-id="ejemplo-de-aplicación-de-la-formula-1">Ejemplo de aplicación de la formula:</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">my_magical_function2</span>(<span class="dv">1</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">my_magical_function2</span>(<span class="dv">2</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Resultados: 
- 1. Coeficiente estimado: -0.0721663 
- 2. Estadístico t: -0.3528503 
- 3. Valor p: 0.7268432 </code></pre>
+<pre><code>Resultados Regresión Lineal: 
+ 1. Coeficiente estimado: -0.1736234 
+ 2. Estadístico t: -0.5069467 
+ 3. Valor p: 0.6161616 </code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">my_magical_function</span>(<span class="dv">1</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">my_magical_function</span>(<span class="dv">2</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Resultados: 
- 1. Coeficiente estimado: -0.2899068 
- 2. Estadístico t: -0.3636479 
- 3. Valor p: 0.716121 </code></pre>
+<pre><code>Resultados Regresión Logística: 
+ 1. Coeficiente estimado: -0.7003055 
+ 2. Estadístico t: -0.5201932 
+ 3. Valor p: 0.6029289 </code></pre>
 </div>
 </div>
+<p>Para determinar si un modelo de regresión logística es mejor que un modelo de regresión lineal, se debe considerar varios aspectos, ya que estos modelos tienen diferentes propósitos y se aplican en distintos contextos. La regresión logística se utiliza principalmente para predecir una variable de respuesta binaria (0 o 1), mientras que la regresión lineal se utiliza para predecir una variable de respuesta continua.</p>
+<p><strong>Coeficientes Estimados</strong></p>
+<p>Regresión Lineal:</p>
+<p>El coeficiente estimado representa el cambio promedio en la variable dependiente por cada unidad de cambio en la variable independiente.</p>
+<p>Regresión Logística:</p>
+<p>El coeficiente estimado representa el cambio en el log-odds de la variable dependiente por cada unidad de cambio en la variable independiente. En otras palabras, un coeficiente negativo en un modelo logístico indica que un aumento en la variable independiente está asociado con una disminución en la probabilidad del evento, en este caso, el diagnóstico de EA.</p>
 </section>
 </section>
 <section id="p10" class="level3">
@@ -4166,6 +4172,61 @@ Number of Fisher Scoring iterations: 25</code></pre>
 <p>tal que <span class="math inline">\(M_1 \subseteq M_2\)</span>.</p>
 <p>Después del proceso de estimación, se obtuvieron los coeficientes <span class="math inline">\((\hat{\beta}_{0,M_1}, \hat{\beta}_{1,M_1})\)</span> y <span class="math inline">\((\hat{\beta}_{0,M_2}, \hat{\beta}_{1,M_2}, \hat{\beta}_{2,M_2})\)</span> con base en una muestra de tamaño <span class="math inline">\(n\)</span> almacenada en el objeto <code>d</code>.</p>
 <p>Interprete <span class="math inline">\(\hat{\beta}_{1,M_1}\)</span> y <span class="math inline">\(\hat{\beta}_{1,M_2}\)</span>. Qué representa <span class="math inline">\(\hat{\beta}_{2,M_2}\)</span>?.</p>
+<section id="modelos" class="level4">
+<h4 class="anchored" data-anchor-id="modelos">Modelos</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(dx <span class="sc">~</span> x1, <span class="at">family =</span> <span class="st">&#39;binomial&#39;</span>, <span class="at">data =</span> d)</span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(dx <span class="sc">~</span> x1 <span class="sc">+</span> x2, <span class="at">family =</span> <span class="st">&#39;binomial&#39;</span>, <span class="at">data =</span> d)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="coeficientes" class="level4">
+<h4 class="anchored" data-anchor-id="coeficientes">Coeficientes</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = dx ~ x1, family = &quot;binomial&quot;, data = d)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)   0.9932     2.7555   0.360    0.719
+x1           -0.2899     0.7972  -0.364    0.716
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 41.589  on 29  degrees of freedom
+Residual deviance: 41.456  on 28  degrees of freedom
+AIC: 45.456
+
+Number of Fisher Scoring iterations: 3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = dx ~ x1 + x2, family = &quot;binomial&quot;, data = d)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)   4.8105     9.7775   0.492    0.623
+x1           -0.1422     0.8754  -0.162    0.871
+x2           -0.6017     1.4762  -0.408    0.684
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 41.589  on 29  degrees of freedom
+Residual deviance: 41.288  on 27  degrees of freedom
+AIC: 47.288
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\hat{\beta}_{1,M_1} = -0.2899\)</span> En el modelo <span class="math inline">\(m1\)</span>, por cada unidad de aumento en <span class="math inline">\(x1\)</span>, los log-odds de <span class="math inline">\(dx\)</span> disminuyen en <span class="math inline">\(0.2899\)</span>. Este coeficiente no es estadísticamente significativo <span class="math inline">\(p=0.716\)</span>.</p>
+<p><span class="math inline">\(\hat{\beta}_{1,M_2} = -0.6017\)</span> En el modelo <span class="math inline">\(m2\)</span>, por cada unidad de aumento en <span class="math inline">\(x2\)</span>, los log-odds de <span class="math inline">\(dx\)</span> disminuyen en <span class="math inline">\(0.6017\)</span>, manteniendo <span class="math inline">\(x_1\)</span> constante. Este coeficiente no es estadísticamente significativo <span class="math inline">\(p=0.684\)</span>.</p>
+<p><span class="math inline">\(\hat{\beta}_{2,M_2}\)</span> Representa el cambio en los log-odds de <span class="math inline">\(dx\)</span> por cada unidad de cambio en <span class="math inline">\(x_2\)</span>, manteniendo <span class="math inline">\(x_1\)</span> constante. Este coeficiente no es significativo <span class="math inline">\(p=0.684\)</span>, lo que sugiere que <span class="math inline">\(x_2\)</span> tampoco tiene un efecto significativo en los log-odds de <span class="math inline">\(dx\)</span>.</p>
+<p>Comparando el resumen de los dos modelos podeos concluir que Dado que ningún coeficiente en ambos modelos es significativo y la residual deviance no se reduce sustancialmente con la adición de <span class="math inline">\(x_2\)</span>, podríamos concluir que ninguno de los predictores <span class="math inline">\(x_1\)</span> y <span class="math inline">\(x_2\)</span> es un buen predictor de <span class="math inline">\(dx\)</span> en este conjunto de datos.</p>
+</section>
 </section>
 </section>
 
